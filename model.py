@@ -13,10 +13,28 @@ class cnn_block(nn.module):
     
 
 class yolo(nn.module):
-    def __init__(self, in_channels=3, **kwargs):
+    def __init__(self, in_channels=3, architecture = None, **kwargs):
         super(yolo,self).__init__()
+        self.architecture = architecture
         self.in_channels = in_channels
-        self.darknet = self.create_layers()
+        self.darknet = self._create_layers(self.architecture)
+        self.fcs = self._create_fully_connected(**kwargs)
+
+    def forward(self, x):
+        x = self.darknet(x)
+        return self.fcs(torch.flatten(x, start_dim=1))
+    
+    def _create_layers(self, arch):
+        layers = []
+        in_channels = self.in_channels
+        for layer in self.architecture:
+            if isinstance(layer[0],int):
+                layers += cnn_block(in_channels,layer[1],layer[2])
+
+
+
+
+
 
 
 
