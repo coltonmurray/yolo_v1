@@ -29,7 +29,48 @@ class yolo(nn.module):
         in_channels = self.in_channels
         for layer in self.architecture:
             if isinstance(layer[0],int):
-                layers += cnn_block(in_channels,layer[1],layer[2])
+                layers += [cnn_block(
+                    in_channels=in_channels, 
+                    out_channels=layer[1], 
+                    kernel_size = layer[0], 
+                    stride = layer[2], 
+                    padding = layer[3]
+                    )]
+            elif isinstance(layer[0],str):
+                layers += [nn.MaxPool2d(kernel_size=2, stride = 2)]
+            elif isinstance(layer[0],list):
+                conv1 = layer[0]
+                conv2 = layer[1]
+                num_repeats = layer[2]
+
+                for _ in range(num_repeats):
+                    layers += [cnn_block(
+                    in_channels=in_channels, 
+                    out_channels=conv1[1], 
+                    kernel_size = conv1[0], 
+                    stride = conv1[2], 
+                    padding = conv1[3]
+                    )]
+                    layers += [cnn_block(
+                    in_channels=in_channels, 
+                    out_channels=conv2[1], 
+                    kernel_size = conv2[0], 
+                    stride = conv2[2], 
+                    padding = conv2[3]
+                    )]
+                    in_channels = conv2[1]
+        return nn.Sequential(*layers)
+    
+def _create_fully_connected(self, split_size, num_boxes, num_classes):
+    S, B, C = split_size, num_boxes, num_classes
+    nn.Sequential(
+        nn.Flatten(),
+        nn.Linear(1024 * S * S)
+    )
+
+
+
+
 
 
 
