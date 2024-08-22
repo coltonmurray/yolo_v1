@@ -89,8 +89,7 @@ def test(arch_path = 'yolo.yaml',split_size=7, num_boxes=2, num_classes=20):
 
     model = yolo(split_size = split_size, num_boxes = num_boxes, num_classes = num_classes, architecture=arch)
     x = torch.randn((2,3,448,448))
-    
-    print(model)
+ 
     print(model(x).shape)
 
 
