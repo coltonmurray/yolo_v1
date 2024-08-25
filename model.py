@@ -78,7 +78,7 @@ class yolo(nn.Module):
             nn.Linear(1024 * S * S, 4096),
             nn.Dropout(0.0),
             nn.LeakyReLU(0.1),
-            nn.Linear(4096, S * S * ((B*5)+C))
+            nn.Linear(4096, S * S * ((B*5)+C)) # output is B 5 dimentional bounding box predictions, the class softmax of length C, for each index in SxS grid
         )
 
     
@@ -86,7 +86,6 @@ def test(arch_path = 'yolo.yaml',split_size=7, num_boxes=2, num_classes=20):
     with open(arch_path, 'r') as a:
         arch = yaml.safe_load(a)
    
-
     model = yolo(split_size = split_size, num_boxes = num_boxes, num_classes = num_classes, architecture=arch)
     x = torch.randn((2,3,448,448))
  
