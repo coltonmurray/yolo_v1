@@ -1,6 +1,6 @@
 import torch
 import torch.nn as nn
-from utils import iou
+from utils import calc_iou
 
 
 class YoloLoss(nn.Module):
@@ -44,13 +44,34 @@ class YoloLoss(nn.Module):
 
         obj_loss = self.mse(
             torch.flatten(exists_box * pred_box),
-
+            torch.flatten(exists_box * target[...,20:21])
         )
 
         #no object loss
-
+        no_object_loss = self.mse(
+            torch.flatten((1-exists_box) * predictions[...,20:21], start_dim=1),
+            torch.flatten((1-exists_box) * target[...,20:21], start_dim=1)
+        )
+        no_object_loss += self.mse(
+            torch.flatten((1-exists_box) * predictions[...,25:26], start_dim=1),
+            torch.flatten((1-exists_box) * target[...,20:21], start_dim=1)
+        )
+        
         #class loss
+        class_loss = self.mse(
+            torch.flatten(exists_box * predictions[..., :20], end_dim=-2),
+            torch.flatten(exists_box * target[..., :20], end_dim=-2)
+        )
 
+        #total loss
+        loss = (
+            self.lambda_coord * box_loss +
+            obj_loss +
+            self.lambda_noobj * no_object_loss +
+            class_loss
+        )
+
+        return loss
 
 
 
